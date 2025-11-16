@@ -32,11 +32,16 @@ connectDB();
 -------------------------------------------------------- */
 app.use(
   cors({
-    origin: "*",
+    origin: [
+      "https://rapid-quest-phcd.vercel.app",
+      "http://localhost:5173"
+    ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
 );
+
 
 // Handle preflight OPTIONS before any auth or rate limiter
 app.options("*", (req, res) => {
