@@ -1,0 +1,16 @@
+{
+  "name": "competitive-landscape-monitoring-platform",
+  "version": "1.0.0",
+  "description": "Complete full-stack platform to monitor competitor updates, pricing changes, product launches",
+  "main": "index.js",
+  "scripts": {
+    "start": "node backend/src/index.js",
+    "dev": "nodemon backend/src/index.js",
+    "frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "install:all": "npm install && cd frontend && npm install"
+  },
+  "keywords": ["competitive-intelligence", "monitoring", "scraping", "ai-classification"],
+  "author": "",
+  "license": "MIT"
+}
