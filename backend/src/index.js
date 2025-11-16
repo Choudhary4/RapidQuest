@@ -31,10 +31,7 @@ connectDB();
 app.use(helmet());
 
 // CORS
-app.use(cors({
-  origin: config.corsOrigin === '*' ? '*' : config.corsOrigin.split(',').map(o => o.trim()),
-  credentials: true
-}));
+app.use(cors());
 
 // Body parser
 app.use(express.json({ limit: '10mb' }));
