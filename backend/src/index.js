@@ -24,8 +24,26 @@ const comparisonRoutes = require("./routes/comparisonRoutes");
 // Initialize express app
 const app = express();
 
-// Connect to database
-connectDB();
+// Connect to database (async, but don't wait for serverless)
+const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+if (!isServerless) {
+  // Traditional server: connect on startup
+  connectDB();
+} else {
+  // Serverless: connect on first request
+  app.use(async (_req, res, next) => {
+    try {
+      await connectDB();
+      next();
+    } catch (error) {
+      logger.error('Database connection failed:', error);
+      res.status(503).json({
+        success: false,
+        error: 'Database connection failed'
+      });
+    }
+  });
+}
 
 /* -------------------------------------------------------
    🔥 CORS MUST COME FIRST
