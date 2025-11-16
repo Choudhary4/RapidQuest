@@ -22,7 +22,12 @@ const queryClient = new QueryClient({
 
 function PrivateRoute({ children }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  const token = useAuthStore((state) => state.token);
+
+  // Check both Zustand state and localStorage to prevent race conditions
+  const hasAuth = isAuthenticated && token;
+
+  return hasAuth ? children : <Navigate to="/login" replace />;
 }
 
 function App() {

@@ -13,6 +13,10 @@ import {
   Lightbulb,
   Clock
 } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Spinner } from '@/components/ui/Spinner';
 
 export function ComparisonMatrix() {
   const [selectedMetric, setSelectedMetric] = useState('features');
@@ -41,10 +45,10 @@ export function ComparisonMatrix() {
   };
 
   const getScoreColor = (score) => {
-    if (score >= 75) return 'text-green-600 bg-green-100';
-    if (score >= 50) return 'text-yellow-600 bg-yellow-100';
-    if (score >= 25) return 'text-orange-600 bg-orange-100';
-    return 'text-red-600 bg-red-100';
+    if (score >= 75) return 'text-green-400 bg-green-500/10';
+    if (score >= 50) return 'text-yellow-400 bg-yellow-500/10';
+    if (score >= 25) return 'text-orange-400 bg-orange-500/10';
+    return 'text-red-400 bg-red-500/10';
   };
 
   const getScoreBarColor = (score) => {
@@ -63,86 +67,91 @@ export function ComparisonMatrix() {
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Competitor Comparison Matrix</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-3xl font-bold tracking-tight">Competitor Comparison Matrix</h1>
+          <p className="text-muted-foreground">
             AI-powered competitive analysis across features, pricing, and marketing
           </p>
         </div>
-        <button
+        <Button
           onClick={() => generateMutation.mutate()}
           disabled={generateMutation.isPending}
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <RefreshCw className={`w-4 h-4 mr-2 ${generateMutation.isPending ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`mr-2 h-4 w-4 ${generateMutation.isPending ? 'animate-spin' : ''}`} />
           {generateMutation.isPending ? 'Generating...' : 'Generate Matrix'}
-        </button>
+        </Button>
       </div>
 
       {/* Content */}
       {isLoading ? (
         <div className="flex items-center justify-center h-64">
-          <RefreshCw className="w-8 h-8 text-blue-500 animate-spin" />
+          <Spinner size="large" />
         </div>
       ) : !matrix ? (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-          <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            No comparison matrix available yet
-          </h3>
-          <p className="text-gray-500 mb-4">
-            Click "Generate Matrix" to create your first comparison analysis.
-          </p>
-        </div>
+        <Card>
+          <CardContent className="p-12 text-center">
+            <BarChart3 className="mx-auto mb-3 h-12 w-12 text-muted-foreground" />
+            <h3 className="mb-2 text-lg font-medium">
+              No comparison matrix available yet
+            </h3>
+            <p className="text-muted-foreground">
+              Click "Generate Matrix" to create your first comparison analysis.
+            </p>
+          </CardContent>
+        </Card>
       ) : (
         <div className="space-y-6">
           {/* Meta Information */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="flex items-center">
-                <Clock className="w-5 h-5 text-gray-400 mr-2" />
-                <div>
-                  <p className="text-xs text-gray-500">Generated</p>
-                  <p className="text-sm font-medium text-gray-900">
-                    {formatDate(matrix.createdAt)}
-                  </p>
+          <Card>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center">
+                  <Clock className="mr-2 h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Generated</p>
+                    <p className="text-sm font-medium">
+                      {formatDate(matrix.createdAt)}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <BarChart3 className="mr-2 h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Competitors</p>
+                    <p className="text-sm font-medium">
+                      {matrix.competitors?.length || 0}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <TrendingUp className="mr-2 h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Analysis Period</p>
+                    <p className="text-sm font-medium">
+                      Last 30 days
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center">
-                <BarChart3 className="w-5 h-5 text-gray-400 mr-2" />
-                <div>
-                  <p className="text-xs text-gray-500">Competitors</p>
-                  <p className="text-sm font-medium text-gray-900">
-                    {matrix.competitors?.length || 0}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <TrendingUp className="w-5 h-5 text-gray-400 mr-2" />
-                <div>
-                  <p className="text-xs text-gray-500">Analysis Period</p>
-                  <p className="text-sm font-medium text-gray-900">
-                    Last 30 days
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* AI Insights Summary */}
           {matrix.aiInsights?.summary && (
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-3 flex items-center">
-                <Lightbulb className="w-6 h-6 text-yellow-500 mr-2" />
-                AI Analysis Summary
-              </h2>
-              <p className="text-gray-700 leading-relaxed">
-                {matrix.aiInsights.summary}
-              </p>
-            </div>
+            <Card className="border-primary/50 bg-primary/5">
+              <CardContent className="p-6">
+                <h2 className="mb-3 flex items-center text-xl font-bold">
+                  <Lightbulb className="mr-2 h-6 w-6 text-yellow-400" />
+                  AI Analysis Summary
+                </h2>
+                <p className="leading-relaxed text-muted-foreground">
+                  {matrix.aiInsights.summary}
+                </p>
+              </CardContent>
+            </Card>
           )}
 
           {/* Rankings Overview */}
@@ -150,146 +159,151 @@ export function ComparisonMatrix() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Innovation Leader */}
               {matrix.aiInsights.rankings.innovation && (
-                <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-gray-900">🏆 Innovation Leader</h3>
-                    <span className={`px-2 py-1 rounded-full text-sm font-medium ${getScoreColor(matrix.aiInsights.rankings.innovation.score)}`}>
-                      {matrix.aiInsights.rankings.innovation.score}
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-gray-900 mb-2">
-                    {matrix.aiInsights.rankings.innovation.leader}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {matrix.aiInsights.rankings.innovation.reason}
-                  </p>
-                </div>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold">🏆 Innovation Leader</h3>
+                      <Badge className={getScoreColor(matrix.aiInsights.rankings.innovation.score)}>
+                        {matrix.aiInsights.rankings.innovation.score}
+                      </Badge>
+                    </div>
+                    <p className="mb-2 text-lg font-bold">
+                      {matrix.aiInsights.rankings.innovation.leader}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {matrix.aiInsights.rankings.innovation.reason}
+                    </p>
+                  </CardContent>
+                </Card>
               )}
 
               {/* Pricing Leader */}
               {matrix.aiInsights.rankings.pricing && (
-                <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-gray-900">💰 Pricing Strategy</h3>
-                    <span className={`px-2 py-1 rounded-full text-sm font-medium ${getScoreColor(matrix.aiInsights.rankings.pricing.score)}`}>
-                      {matrix.aiInsights.rankings.pricing.score}
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-gray-900 mb-2">
-                    {matrix.aiInsights.rankings.pricing.leader}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {matrix.aiInsights.rankings.pricing.reason}
-                  </p>
-                </div>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold">💰 Pricing Strategy</h3>
+                      <Badge className={getScoreColor(matrix.aiInsights.rankings.pricing.score)}>
+                        {matrix.aiInsights.rankings.pricing.score}
+                      </Badge>
+                    </div>
+                    <p className="mb-2 text-lg font-bold">
+                      {matrix.aiInsights.rankings.pricing.leader}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {matrix.aiInsights.rankings.pricing.reason}
+                    </p>
+                  </CardContent>
+                </Card>
               )}
 
               {/* Marketing Leader */}
               {matrix.aiInsights.rankings.marketing && (
-                <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-gray-900">📢 Marketing Leader</h3>
-                    <span className={`px-2 py-1 rounded-full text-sm font-medium ${getScoreColor(matrix.aiInsights.rankings.marketing.score)}`}>
-                      {matrix.aiInsights.rankings.marketing.score}
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-gray-900 mb-2">
-                    {matrix.aiInsights.rankings.marketing.leader}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {matrix.aiInsights.rankings.marketing.reason}
-                  </p>
-                </div>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold">📢 Marketing Leader</h3>
+                      <Badge className={getScoreColor(matrix.aiInsights.rankings.marketing.score)}>
+                        {matrix.aiInsights.rankings.marketing.score}
+                      </Badge>
+                    </div>
+                    <p className="mb-2 text-lg font-bold">
+                      {matrix.aiInsights.rankings.marketing.leader}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {matrix.aiInsights.rankings.marketing.reason}
+                    </p>
+                  </CardContent>
+                </Card>
               )}
             </div>
           )}
 
           {/* Metric Selector */}
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
-            <div className="flex flex-wrap gap-2">
-              {metrics.map((metric) => {
-                const Icon = metric.icon;
-                return (
-                  <button
-                    key={metric.id}
-                    onClick={() => setSelectedMetric(metric.id)}
-                    className={`flex items-center px-4 py-2 rounded-md font-medium transition-colors ${
-                      selectedMetric === metric.id
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4 mr-2" />
-                    {metric.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex flex-wrap gap-2">
+                {metrics.map((metric) => {
+                  const Icon = metric.icon;
+                  return (
+                    <Button
+                      key={metric.id}
+                      onClick={() => setSelectedMetric(metric.id)}
+                      variant={selectedMetric === metric.id ? 'default' : 'outline'}
+                    >
+                      <Icon className="mr-2 h-4 w-4" />
+                      {metric.label}
+                    </Button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Comparison Table */}
           {matrix.comparisonData && matrix.comparisonData[selectedMetric] && (
-            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Competitor
-                      </th>
+            <Card>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-border">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          Competitor
+                        </th>
                       {selectedMetric === 'features' && (
                         <>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             Features
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             Innovation Score
                           </th>
                         </>
                       )}
                       {selectedMetric === 'pricing' && (
                         <>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             Pricing Updates
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             Aggressiveness
                           </th>
                         </>
                       )}
                       {selectedMetric === 'campaigns' && (
                         <>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             Campaigns
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             Campaign Strength
                           </th>
                         </>
                       )}
                       {selectedMetric === 'activity' && (
                         <>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             Total Updates
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             Activity Score
                           </th>
                         </>
                       )}
                       {selectedMetric === 'sentiment' && (
                         <>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             Sentiment
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                             Overall Score
                           </th>
                         </>
                       )}
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {Object.entries(matrix.comparisonData[selectedMetric])
                       .sort((a, b) => {
                         const scoreKey = selectedMetric === 'features' ? 'innovationScore'
@@ -308,18 +322,18 @@ export function ComparisonMatrix() {
                         const score = data[scoreKey] || 0;
 
                         return (
-                          <tr key={name} className="hover:bg-gray-50">
+                          <tr key={name} className="hover:bg-muted/50">
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="font-medium text-gray-900">{name}</div>
+                              <div className="font-medium">{name}</div>
                             </td>
                             {selectedMetric === 'features' && (
                               <>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                                   {data.totalFeatures} features
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="flex items-center">
-                                    <div className="w-24 h-2 bg-gray-200 rounded-full mr-2">
+                                    <div className="w-24 h-2 bg-muted rounded-full mr-2">
                                       <div
                                         className={`h-2 rounded-full ${getScoreBarColor(score)}`}
                                         style={{ width: `${score}%` }}
@@ -334,12 +348,12 @@ export function ComparisonMatrix() {
                             )}
                             {selectedMetric === 'pricing' && (
                               <>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                                   {data.totalPricingUpdates} updates
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="flex items-center">
-                                    <div className="w-24 h-2 bg-gray-200 rounded-full mr-2">
+                                    <div className="w-24 h-2 bg-muted rounded-full mr-2">
                                       <div
                                         className={`h-2 rounded-full ${getScoreBarColor(score)}`}
                                         style={{ width: `${score}%` }}
@@ -354,12 +368,12 @@ export function ComparisonMatrix() {
                             )}
                             {selectedMetric === 'campaigns' && (
                               <>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                                   {data.totalCampaigns} campaigns
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="flex items-center">
-                                    <div className="w-24 h-2 bg-gray-200 rounded-full mr-2">
+                                    <div className="w-24 h-2 bg-muted rounded-full mr-2">
                                       <div
                                         className={`h-2 rounded-full ${getScoreBarColor(score)}`}
                                         style={{ width: `${score}%` }}
@@ -374,18 +388,18 @@ export function ComparisonMatrix() {
                             )}
                             {selectedMetric === 'activity' && (
                               <>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                                   {data.totalUpdates} updates
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="flex items-center">
-                                    <div className="w-24 h-2 bg-gray-200 rounded-full mr-2">
+                                    <div className="w-24 h-2 bg-muted rounded-full mr-2">
                                       <div
                                         className={`h-2 rounded-full ${getScoreBarColor(Math.min(100, score * 5))}`}
                                         style={{ width: `${Math.min(100, score * 5)}%` }}
                                       />
                                     </div>
-                                    <span className="text-sm font-medium text-gray-900">
+                                    <span className="text-sm font-medium">
                                       {score}
                                     </span>
                                   </div>
@@ -394,15 +408,15 @@ export function ComparisonMatrix() {
                             )}
                             {selectedMetric === 'sentiment' && (
                               <>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                                   {data.averageSentiment > 0 ? 'Positive' : data.averageSentiment < 0 ? 'Negative' : 'Neutral'}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="flex items-center">
                                     <span className={`px-2 py-1 rounded text-xs font-medium ${
-                                      score > 0 ? 'text-green-600 bg-green-100' :
-                                      score < 0 ? 'text-red-600 bg-red-100' :
-                                      'text-gray-600 bg-gray-100'
+                                      score > 0 ? 'text-green-400 bg-green-500/10' :
+                                      score < 0 ? 'text-red-400 bg-red-500/10' :
+                                      'text-muted-foreground bg-muted'
                                     }`}>
                                       {score.toFixed(2)}
                                     </span>
@@ -416,51 +430,56 @@ export function ComparisonMatrix() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </CardContent>
+          </Card>
           )}
 
           {/* Strengths & Weaknesses */}
           {matrix.aiInsights?.strengths && matrix.aiInsights?.weaknesses && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Strengths */}
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <ThumbsUp className="w-5 h-5 text-green-500 mr-2" />
-                  Competitive Strengths
-                </h3>
-                <div className="space-y-4">
-                  {Object.entries(matrix.aiInsights.strengths).map(([name, strengths]) => (
-                    <div key={name}>
-                      <h4 className="font-medium text-gray-900 mb-2">{name}</h4>
-                      <ul className="list-disc list-inside space-y-1">
-                        {strengths.map((strength, index) => (
-                          <li key={index} className="text-sm text-gray-600">{strength}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center">
+                    <ThumbsUp className="w-5 h-5 text-green-400 mr-2" />
+                    Competitive Strengths
+                  </h3>
+                  <div className="space-y-4">
+                    {Object.entries(matrix.aiInsights.strengths).map(([name, strengths]) => (
+                      <div key={name}>
+                        <h4 className="font-medium mb-2">{name}</h4>
+                        <ul className="list-disc list-inside space-y-1">
+                          {strengths.map((strength, index) => (
+                            <li key={index} className="text-sm text-muted-foreground">{strength}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Weaknesses */}
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <ThumbsDown className="w-5 h-5 text-red-500 mr-2" />
-                  Areas for Improvement
-                </h3>
-                <div className="space-y-4">
-                  {Object.entries(matrix.aiInsights.weaknesses).map(([name, weaknesses]) => (
-                    <div key={name}>
-                      <h4 className="font-medium text-gray-900 mb-2">{name}</h4>
-                      <ul className="list-disc list-inside space-y-1">
-                        {weaknesses.map((weakness, index) => (
-                          <li key={index} className="text-sm text-gray-600">{weakness}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center">
+                    <ThumbsDown className="w-5 h-5 text-red-400 mr-2" />
+                    Areas for Improvement
+                  </h3>
+                  <div className="space-y-4">
+                    {Object.entries(matrix.aiInsights.weaknesses).map(([name, weaknesses]) => (
+                      <div key={name}>
+                        <h4 className="font-medium mb-2">{name}</h4>
+                        <ul className="list-disc list-inside space-y-1">
+                          {weaknesses.map((weakness, index) => (
+                            <li key={index} className="text-sm text-muted-foreground">{weakness}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
 
@@ -468,32 +487,36 @@ export function ComparisonMatrix() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Key Findings */}
             {matrix.aiInsights?.keyFindings && matrix.aiInsights.keyFindings.length > 0 && (
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">🔍 Key Findings</h3>
-                <ul className="space-y-2">
-                  {matrix.aiInsights.keyFindings.map((finding, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="text-blue-500 mr-2">•</span>
-                      <span className="text-gray-700">{finding}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">🔍 Key Findings</h3>
+                  <ul className="space-y-2">
+                    {matrix.aiInsights.keyFindings.map((finding, index) => (
+                      <li key={index} className="flex items-start">
+                        <span className="text-primary mr-2">•</span>
+                        <span className="text-muted-foreground">{finding}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
             )}
 
             {/* Recommendations */}
             {matrix.aiInsights?.recommendations && matrix.aiInsights.recommendations.length > 0 && (
-              <div className="bg-white border border-gray-200 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">💡 Recommendations</h3>
-                <ul className="space-y-2">
-                  {matrix.aiInsights.recommendations.map((recommendation, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="text-purple-500 mr-2">•</span>
-                      <span className="text-gray-700">{recommendation}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <Card>
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-semibold mb-4">💡 Recommendations</h3>
+                  <ul className="space-y-2">
+                    {matrix.aiInsights.recommendations.map((recommendation, index) => (
+                      <li key={index} className="flex items-start">
+                        <span className="text-purple-400 mr-2">•</span>
+                        <span className="text-muted-foreground">{recommendation}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
             )}
           </div>
         </div>

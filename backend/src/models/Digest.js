@@ -26,7 +26,7 @@ const digestSchema = new mongoose.Schema(
       totalUpdates: Number,
       competitorsActive: Number,
       categories: mongoose.Schema.Types.Mixed,
-      topCompetitor: String,
+      topCompetitor: mongoose.Schema.Types.Mixed,
       trends: mongoose.Schema.Types.Mixed
     },
     updates: [{

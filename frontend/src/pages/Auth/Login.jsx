@@ -24,16 +24,22 @@ export function Login() {
     mutationFn: (data) => authAPI.login(data),
     onSuccess: (response) => {
       const { user, token } = response.data.data;
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      setAuth(user, token);
+
+      // Clear any previous error
       setError('');
+
+      // Set auth in Zustand store (which persists to localStorage automatically)
+      setAuth(user, token);
+
+      // Show success notification
       addNotification({
         type: 'success',
         title: 'Welcome back!',
         description: `Logged in as ${user.name}`,
       });
-      navigate('/');
+
+      // Navigate to dashboard
+      navigate('/', { replace: true });
     },
     onError: (error) => {
       const errorMessage = error.response?.data?.error || 'Invalid credentials. Please try again.';

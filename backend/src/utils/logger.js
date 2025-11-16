@@ -3,12 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const config = require('../config');
 
-// Create logs directory if it doesn't exist
-const logsDir = path.join(__dirname, '../../logs');
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
-}
-
 // Define log format
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
@@ -26,31 +20,53 @@ const consoleFormat = winston.format.combine(
   })
 );
 
+// Determine if we're in a serverless environment (like Vercel)
+const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.FUNCTION_NAME;
+
+// Create transports based on environment
+const transports = [];
+
+// Only use file transports if not in serverless environment
+if (!isServerless) {
+  try {
+    // Create logs directory if it doesn't exist
+    const logsDir = path.join(__dirname, '../../logs');
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true });
+    }
+
+    // Add file transports
+    transports.push(
+      new winston.transports.File({
+        filename: path.join(logsDir, 'error.log'),
+        level: 'error',
+        maxsize: 5242880, // 5MB
+        maxFiles: 5
+      }),
+      new winston.transports.File({
+        filename: path.join(logsDir, 'combined.log'),
+        maxsize: 5242880,
+        maxFiles: 5
+      })
+    );
+  } catch (error) {
+    // If file system is not writable, skip file transports
+    console.error('Unable to create log directory, using console only:', error.message);
+  }
+}
+
+// Always add console transport
+transports.push(
+  new winston.transports.Console({
+    format: config.env !== 'production' ? consoleFormat : logFormat
+  })
+);
+
 // Create logger
 const logger = winston.createLogger({
   level: config.logLevel,
   format: logFormat,
-  transports: [
-    // Write all logs to file
-    new winston.transports.File({
-      filename: path.join(logsDir, 'error.log'),
-      level: 'error',
-      maxsize: 5242880, // 5MB
-      maxFiles: 5
-    }),
-    new winston.transports.File({
-      filename: path.join(logsDir, 'combined.log'),
-      maxsize: 5242880,
-      maxFiles: 5
-    })
-  ]
+  transports
 });
-
-// Add console transport in development
-if (config.env !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: consoleFormat
-  }));
-}
 
 module.exports = logger;
